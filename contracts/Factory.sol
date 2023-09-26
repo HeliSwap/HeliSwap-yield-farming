@@ -25,7 +25,7 @@ contract Factory is ICampaignFactory, Owned {
     // Additional tokens that can be used as rewards except the pool ones
     mapping(address => bool) public override rewardTokens;
 
-    // All the campaign being created
+    // All the campaigns being created
     address[] public override campaigns;
 
     // Store pool to farm campaign

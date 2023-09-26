@@ -27,9 +27,11 @@ contract Whitelist is Ownable, IWhitelist {
     /// @notice Add a token to the whitelist
     /// @param _token Token to be added
     /// @param _ipfsHash IPFS image
-    function addToWhitelist(address _token, string memory _ipfsHash) external override onlyOwner {
-        address pool = IPoolsFactory(poolsFactory).getPair(_token, whbar);
-        require(pool != address(0), 'There is no a pool with Token:WHBAR');
+    function addToWhitelist(address _token, string calldata _ipfsHash) external override onlyOwner {
+        require(
+            IPoolsFactory(poolsFactory).getPair(_token, whbar) != address(0),
+            'There is no a pool with Token:WHBAR'
+        );
 
         whitelistedTokens[_token] = _ipfsHash;
 

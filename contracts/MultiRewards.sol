@@ -10,7 +10,6 @@ import './interfaces/ICampaignFactory.sol';
 import './libraries/TransferHelper.sol';
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/utils/math/Math.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/security/Pausable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
@@ -48,7 +47,7 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
     // Validate if a token is to be added for the first time in the campaign
     mapping(address => bool) public override hasRewardTokenAdded;
 
-    // Token that are allowed to be used as rewards
+    // Tokens that are allowed to be used as rewards
     mapping(address => bool) public override whitelistedRewardTokens;
 
     // user -> reward token -> amount
@@ -155,7 +154,7 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
     }
 
     /// @notice Stake Pool LP tokens for receiving rewards
-    /// @param amount The amount to be staken
+    /// @param amount The amount to be staked
     function stake(uint256 amount) external override nonReentrant whenNotPaused updateReward(msg.sender) {
         require(amount > 0, 'Cannot stake 0');
         _totalSupply = _totalSupply.add(amount);
@@ -222,10 +221,10 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
 
     /// @notice Return when the rewards have been accumulated lastly
     function lastTimeRewardApplicable() public view override returns (uint256) {
-        return Math.min(block.timestamp, periodFinish);
+        return block.timestamp < periodFinish ? block.timestamp : periodFinish;
     }
 
-    /// @notice Calculate how much rewards have been accumulated for a give reward token
+    /// @notice Calculate how much rewards have been accumulated for a given reward token
     function rewardPerToken(address _rewardsToken) public view override returns (uint256) {
         if (_totalSupply == 0) {
             return rewardData[_rewardsToken].rewardPerTokenStored;
@@ -265,7 +264,5 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
     }
 
     /// @dev Fallback function in case of WHBAR rewards. See {@getRewards}
-    receive() external payable {
-        require(msg.sender == WHBAR, 'Only WHBAR is allowed to send tokens');
-    }
+    receive() external payable {}
 }
