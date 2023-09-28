@@ -1,43 +1,61 @@
-import { task } from 'hardhat/config';
-import * as config from './config';
+import * as dotenv from 'dotenv';
+
+import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-waffle';
+import '@typechain/hardhat';
+import 'hardhat-gas-reporter';
+import 'solidity-coverage';
+
+import * as config from './config';
+
+dotenv.config();
 
 require('@hashgraph/hardhat-hethers'); // UNCOMMENT WHEN EXECUTING SCRIPTS; COMMENT WHEN RUNNING TESTS
 
-task('deployFactory', 'Deploys an YF factory contract').setAction(async () => {
-  const factoryDeployment = require('./scripts/01-deploy-factory');
-  await factoryDeployment();
-});
+task('deployFactory', 'Deploys an YF factory contract')
+  .addParam('factory', 'DEX Factory address')
+  .setAction(async taskArgs => {
+    const { factory } = taskArgs;
+    const deployFactory = require('./scripts/01-deploy-factory');
+    await deployFactory(factory);
+  });
+
+task('addRewards', 'Whitelist rewatds to YF factory')
+  .addParam('factory', 'Factory contract address')
+  .setAction(async taskArgs => {
+    const { factory } = taskArgs;
+    const addRewards = require('./scripts/00-add-rewards');
+    await addRewards(factory);
+  });
 
 task('deployCampaign', 'Deploys an YF contract from factory')
   .addParam('factory', 'Factory contract address')
-  .addParam('owner', 'Campaign owner')
-  .addParam('token', 'Staking token address')
+  .addParam('token0', 'Token A')
+  .addParam('token1', 'Token B')
   .setAction(async taskArgs => {
-    const { factory, owner, token } = taskArgs;
+    const { factory, token0, token1 } = taskArgs;
     const deployCampaign = require('./scripts/02-deploy-campaign');
-    await deployCampaign(factory, owner, token);
+    await deployCampaign(factory, token0, token1);
   });
 
 task('enableReward', 'Enable rewards to YF contract')
   .addParam('campaign', 'Campaign address')
-  .addParam('reward', 'Reward address')
   .addParam('duration', 'Duration in seconds')
-  .addParam('hts', "Whether the reward is HTS")
   .setAction(async taskArgs => {
-    const { campaign, reward, duration, hts } = taskArgs;
+    const { campaign, duration } = taskArgs;
     const enableReward = require('./scripts/03-enable-rewards');
-    await enableReward(campaign, reward, duration, hts); // If adding non HTS token as as reward, set this to false
+    await enableReward(campaign, duration); // If adding non HTS token as as reward, set this to false
   });
 
 task('sendReward', 'Notify contract for YF rewards')
   .addParam('campaign', 'Campaign address')
   .addParam('reward', 'Reward address')
   .addParam('amount', 'Reward amount')
+  .addParam('duration', 'Reward duration')
   .setAction(async taskArgs => {
-    const { campaign, reward, amount } = taskArgs;
+    const { campaign, reward, amount, duration } = taskArgs;
     const sendReward = require('./scripts/04-send-reward');
-    await sendReward(campaign, reward, amount);
+    await sendReward(campaign, reward, amount, duration);
   });
 
 task('associateToken', 'Associates an HTS token')
@@ -94,15 +112,17 @@ task('setupMultiRewardsCampaign', 'Deploys Multi Rewards campaign')
 
 task('campaignInfo', 'Interact with multirewards contract')
   .addParam('campaign', 'Contract address')
-  .addParam('walletAddress', 'Wallet address')
-  .addParam('index', 'Reward index')
-  .addParam('decimals', 'Reward token decimals')
+  //   .addParam('walletAddress', 'Wallet address')
+  //   .addParam('index', 'Reward index')
+  //   .addParam('decimals', 'Reward token decimals')
   .setAction(async taskArgs => {
-    const { campaign, walletAddress, index, decimals } = taskArgs;
+    // const { campaign, walletAddress, index, decimals } = taskArgs;
+    const { campaign } = taskArgs;
 
     const campaignInfo = require('./scripts/05-campaign-info');
 
-    await campaignInfo(campaign, walletAddress, index, decimals);
+    // await campaignInfo(campaign, walletAddress, index, decimals);
+    await campaignInfo(campaign);
   });
 
 task('setDuration', 'Adjust the duration of a particular campaign')
@@ -118,24 +138,83 @@ task('setDuration', 'Adjust the duration of a particular campaign')
   });
 
 task('extendCampaign')
-    .addParam('campaign')
-    .addParam('token')
-    .addParam('duration')
-    .addParam('reward')
-    .setAction(async taskArgs => {
-        const extendCampaign = require('./scripts/06-extend-campaign');
-        await extendCampaign(taskArgs.campaign, taskArgs.token, taskArgs.duration, taskArgs.reward)
-    })
+  .addParam('campaign')
+  .addParam('token')
+  .addParam('duration')
+  .addParam('reward')
+  .setAction(async taskArgs => {
+    const extendCampaign = require('./scripts/06-extend-campaign');
+    await extendCampaign(taskArgs.campaign, taskArgs.token, taskArgs.duration, taskArgs.reward);
+  });
+
+task('stakeToken', 'Stake tokens to campaign')
+  .addParam('campaign')
+  .addParam('amount')
+  .addParam('token')
+  .setAction(async taskArgs => {
+    const { campaign, amount, token } = taskArgs;
+    const stakeToken = require('./scripts/07-stake-token');
+    await stakeToken(campaign, amount, token);
+  });
+
+const accounts = [
+  {
+    privateKey: '0xe80902f1423234ab6de5232a497a2dad6825185949438bdf02ef36cd3f38d62c',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0x8dc23d20e4cc1c1bce80b3610d2b9c3d2dcc917fe838d6161c7b7107ea8049d2',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0xf467b3f495971ec1804cd753984e2ab03affc8574c35bd302d611f93420c1861',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0x195c2fce7255bddbea14def3ca04fd5bf2b53e749cd2d4ac33a85d6872e798f6',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0xa9039111697f2c0c51d0c2f35cb1fc1fa9f0456e1a0b58c297d4940eda35b135',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0xd32ba1893d2c189fb6ce63ef03c63e2aa7cf2893c60c39851d2c576fd7bb8b65',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0xf9def8e25a2538e0a090bce36e9cd7815d04347171383f9dcb6362078c4437df',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0xe57de1dc1573318d0a7e81367138c09b04a6a6bc6f46858c3a09d1f7a25ee72d',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0x81274be2a9a23d2bcb6786b786917b3641d8dff69b541a7f1d20151a145a4114',
+    balance: '211371231719819352917048000',
+  },
+  {
+    privateKey: '0xf1ddce51d38205805c1574e46dc3982c5cdad8e78641200280be1df7487bdbac',
+    balance: '211371231719819352917048000',
+  },
+];
 
 module.exports = {
   solidity: {
     compilers: [
       {
-        version: '0.5.17',
+        version: '0.8.0',
         settings: {
           optimizer: {
             enabled: true,
             runs: 200,
+          },
+          // required for smocks plugin
+          outputSelection: {
+            '*': {
+              '*': ['storageLayout'],
+            },
           },
         },
       },
@@ -148,32 +227,41 @@ module.exports = {
           },
         },
       },
-      {
-        version: '0.8.10',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
     ],
   },
-  networks: {
-    local: {
-      url: 'http://localhost:7546',
-      chainId: 298,
-      accounts: [
-        '0x105d050185ccb907fba04dd92d8de9e32c18305e097ab41dadda21489a211524',
-        '0x2e1d968b041d84dd120a5860cee60cd83f9374ef527ca86996317ada3d0d03e7',
-        '0x45a5a7108a18dd5013cf2d5857a28144beadc9c70b3bdbd914e38df4e804b8d8',
-        '0x6e9d61a325be3f6675cf8b7676c70e4a004d2308e3e182370a41f5653d52c6bd',
-      ],
-    }
+  paths: {
+    sources: './contracts',
+    cache: './cache',
+    artifacts: './artifacts',
   },
-  defaultNetwork: 'local',
+  networks: {
+    localhost: {
+      url: 'http://localhost:8545',
+    },
+    hardhat: {
+      allowUnlimitedContractSize: true,
+      forking: {
+        url: '' + process.env.MAINNET_KEY,
+        blockNumber: 15680777,
+      },
+      // mining: {
+      //   auto: false,
+      //   interval: 13000,
+      // },
+      accounts,
+    },
+  },
   hedera: {
     networks: config.networks,
     gasLimit: 2_000_000,
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS === 'true',
+    currency: 'USD',
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: '',
   },
 };

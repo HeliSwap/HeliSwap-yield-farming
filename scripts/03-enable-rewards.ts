@@ -1,11 +1,11 @@
 // @ts-nocheck
 import hardhat from 'hardhat';
 
-async function enableRewards(campaign: string, reward: string, duration: string, isHTS = false) {
+async function enableRewards(campaign: string, duration: string) {
   const multiRewards = await hardhat.hethers.getContractAt('MultiRewards', campaign);
 
   console.log('⚙️ Enabling reward...');
-  await multiRewards.enableReward(reward, isHTS, duration, { gasLimit: 900_000});
+  await multiRewards.enableReward(duration, { gasLimit: 900_000 });
   console.log('✅ Reward enabled');
 }
 
