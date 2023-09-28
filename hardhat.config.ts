@@ -12,10 +12,13 @@ dotenv.config();
 
 require('@hashgraph/hardhat-hethers'); // UNCOMMENT WHEN EXECUTING SCRIPTS; COMMENT WHEN RUNNING TESTS
 
-task('deployFactory', 'Deploys an YF factory contract').setAction(async () => {
-  const factoryDeployment = require('./scripts/01-deploy-factory');
-  await factoryDeployment();
-});
+task('deployFactory', 'Deploys an YF factory contract')
+  .addParam('factory', 'DEX Factory address')
+  .setAction(async taskArgs => {
+    const { factory } = taskArgs;
+    const deployFactory = require('./scripts/01-deploy-factory');
+    await deployFactory(factory);
+  });
 
 task('addRewards', 'Whitelist rewatds to YF factory')
   .addParam('factory', 'Factory contract address')
