@@ -147,6 +147,16 @@ task('extendCampaign')
     await extendCampaign(taskArgs.campaign, taskArgs.token, taskArgs.duration, taskArgs.reward);
   });
 
+task('stakeToken', 'Stake tokens to campaign')
+  .addParam('campaign')
+  .addParam('amount')
+  .addParam('token')
+  .setAction(async taskArgs => {
+    const { campaign, amount, token } = taskArgs;
+    const stakeToken = require('./scripts/07-stake-token');
+    await stakeToken(campaign, amount, token);
+  });
+
 const accounts = [
   {
     privateKey: '0xe80902f1423234ab6de5232a497a2dad6825185949438bdf02ef36cd3f38d62c',

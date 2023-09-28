@@ -19,7 +19,8 @@
     "setupMultiRewardsCampaign": "npx hardhat setupMultiRewardsCampaign --network testnet --factory 0x0000000000000000000000000000000002dfa29c --token 0x0a06676Eb5144ad5451bE2Dec256dfeb07f20eb4 --duration 86400",
     "campaignInfo": "npx hardhat campaignInfo --network testnet --campaign 0x93B782796D3Ddd41e462cF92188Bf5821A81E067",
     "setDuration": "npx hardhat setDuration --network mainnet --campaign 0x0000000000000000000000000000000000151255 --token 0x0000000000000000000000000000000000107d76 --duration 300",
-    "extendCampaign": "npx hardhat extendCampaign --network mainnet --campaign 0x0000000000000000000000000000000000143719 --token 0x0000000000000000000000000000000000107d76 --reward 12374961000000 --duration 1263425"
+    "extendCampaign": "npx hardhat extendCampaign --network mainnet --campaign 0x0000000000000000000000000000000000143719 --token 0x0000000000000000000000000000000000107d76 --reward 12374961000000 --duration 1263425",
+    "stakeToken": "npx hardhat stakeToken --campaign 0xbE08eEB6839Dd81E60Cd2e8d1ce95d88f4Df051A --amount 0.000000002 --token 0x299B166E05CEC80e8B7b67733804705d0F824533 --network testnet"
   },
   "repository": "https://github.com/LimeChain/HeliSwap-yield-farming",
   "author": "Limechain",
