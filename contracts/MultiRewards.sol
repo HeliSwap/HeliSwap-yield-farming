@@ -70,7 +70,7 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
         for (uint256 i; i < rewardTokens.length; i++) {
             address token = rewardTokens[i];
             rewardData[token].rewardPerTokenStored = rewardPerToken(token);
-            rewardData[token].lastUpdateTime = lastTimeRewardApplicable();
+            rewardData[token].lastUpdateTime = lastTimeRewardApplicable(rewardData[token].periodFinish);
             if (account != address(0)) {
                 rewards[account][token] = earned(account, token);
                 userRewardPerTokenPaid[account][token] = rewardData[token].rewardPerTokenStored;
@@ -220,8 +220,8 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
     }
 
     /// @notice Return when the rewards have been accumulated lastly
-    function lastTimeRewardApplicable() public view override returns (uint256) {
-        return block.timestamp < periodFinish ? block.timestamp : periodFinish;
+    function lastTimeRewardApplicable(uint256 tokenPeriodFinish) public view override returns (uint256) {
+        return block.timestamp < tokenPeriodFinish ? block.timestamp : tokenPeriodFinish;
     }
 
     /// @notice Calculate how much rewards have been accumulated for a given reward token
@@ -231,7 +231,7 @@ contract MultiRewards is IMultiRewards, Owned, ReentrancyGuard, Pausable {
         }
         return
             rewardData[_rewardsToken].rewardPerTokenStored.add(
-                lastTimeRewardApplicable()
+                lastTimeRewardApplicable(rewardData[_rewardsToken].periodFinish)
                     .sub(rewardData[_rewardsToken].lastUpdateTime)
                     .mul(rewardData[_rewardsToken].rewardRate)
                     .mul(1e18)

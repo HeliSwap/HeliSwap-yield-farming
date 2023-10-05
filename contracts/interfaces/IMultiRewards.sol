@@ -31,9 +31,9 @@ interface IMultiRewards {
 
     function rewardsDuration() external view returns (uint256);
 
-    function enableReward(uint256 _duration) external;
+    function enableReward(uint256 duration) external;
 
-    function notifyRewardAmount(address _token, uint256 _reward, uint256 _notifyRewardAmount) external;
+    function notifyRewardAmount(address token, uint256 reward, uint256 amount) external;
 
     function stake(uint256 amount) external;
 
@@ -51,11 +51,11 @@ interface IMultiRewards {
 
     function balanceOf(address account) external view returns (uint256);
 
-    function lastTimeRewardApplicable() external view returns (uint256);
+    function lastTimeRewardApplicable(uint256 tokenPeriodFinish) external view returns (uint256);
 
-    function rewardPerToken(address _rewardsToken) external view returns (uint256);
+    function rewardPerToken(address rewardsToken) external view returns (uint256);
 
-    function earned(address account, address _rewardsToken) external view returns (uint256);
+    function earned(address account, address rewardsToken) external view returns (uint256);
 
-    function getRewardForDuration(address _rewardsToken) external view returns (uint256);
+    function getRewardForDuration(address rewardsToken) external view returns (uint256);
 }
